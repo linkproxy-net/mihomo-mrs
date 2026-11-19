@@ -1,39 +1,61 @@
 # Mihomo Ruleset (MRS)
 
-专为 **Mihomo (Clash.Meta)** 定制的高性能二进制规则集 (`.mrs`) 及纯文本域名列表 (`.txt`)，每日定时全自动同步上游权威规则、智能清洗去重合并生成�?
+用于在 **Mihomo (Clash.Meta)** 中维护二进制规则集 (`.mrs`) 与明文规则列表 (`.txt`)，用于构建广告拦截、AI 代理路由等自定义分流规则。
+
 ---
 
-## 规则集与上游来源清单
+## 路由列表构建与数据源
 
 ### 1. 广告拦截 (`ads.mrs` / `ads.txt`)
 
-多源聚合互补，全面拦截全网广告、开屏广告、追踪器与流�?SDK�?
-* **数据来源**�?  1. [GOODBYEADS](https://github.com/8680/GOODBYEADS) (`data/rules/dns.txt`)
-  2. [anti-AD](https://github.com/privacy-protection-tools/anti-AD) (`anti-ad-domains.txt`)
-  3. [AWAvenue-Ads-Rule](https://github.com/TG-Twilight/AWAvenue-Ads-Rule) (`AWAvenue-Ads-Rule-Clash.yaml`)
-* **处理说明**�?  * 清洗过滤 ABP 语法修饰符、注释、白名单及纯 IP，剔除畸变通配符，聚合去重为标准的纯域名拦截列表�?
+主要用于屏蔽常见广告域名、开屏广告、追踪统计与第三方广告 SDK。
+
+* **上游数据源**：
+1. [GOODBYEADS](https://github.com/8680/GOODBYEADS) (`data/rules/dns.txt`)
+2. [anti-AD](https://github.com/privacy-protection-tools/anti-AD) (`anti-ad-domains.txt`)
+3. [AWAvenue-Ads-Rule](https://github.com/TG-Twilight/AWAvenue-Ads-Rule) (`AWAvenue-Ads-Rule-Clash.yaml`)
+
+
+* **构建过滤原则**：
+* 剔除浏览器 ABP 规则语法行、注释、空行及纯 IP（视构建目标而定，通常纯域名规则集保留域名条目）。
+
+
+
 ---
 
-### 2. AI 平台分流 (`ai.mrs` / `ai.txt`)
+### 2. AI 专用分流 (`ai.mrs` / `ai.txt`)
 
-整合主流开源社区中维护最活跃的权�?AI 规则源，全面覆盖主流生成�?AI 与开发者工具：
+用于将主流大模型、代码助手及 AI 推理接口统一导向指定代理策略组，避免地区限制或延迟波动。
 
-* **涵盖服务**�?  * **Anthropic / Claude / Claude Code** (claude.ai, anthropic.com, claude.com, claude.site 等全系列及开发工�?
-  * **OpenAI** (ChatGPT, Sora, OpenAI API)
-  * **Google Gemini / DeepMind** (Gemini, AI Studio, Bard, NotebookLM)
-  * **Microsoft Copilot** (Github Copilot, Windows Copilot)
-  * **xAI (Grok)** (grok.com, x.ai, grokipedia.com)
-  * **Perplexity AI** (perplexity.ai, pplx.ai)
-  * **Groq / Midjourney / Poe / Windsurf / Cursor / Minimax** �?* **数据来源**�?  1. [v2fly/domain-list-community](https://github.com/v2fly/domain-list-community)（递归展开 `category-ai-!cn`�?  2. [ACL4SSR](https://github.com/ACL4SSR/ACL4SSR) (`Clash/Ruleset/AI.list`)
-  3. [VPSDance/ai-proxy-rules](https://github.com/VPSDance/ai-proxy-rules) (`rules/clash/global.yaml`)
-  4. [blackmatrix7/ios_rule_script](https://github.com/blackmatrix7/ios_rule_script) (OpenAI / Claude / Anthropic / Gemini / Copilot)
-  5. [MetaCubeX/meta-rules-dat](https://github.com/MetaCubeX/meta-rules-dat) (Perplexity / xAI / Groq / Anthropic)
-* **处理说明**�?  * **全局去重**：合并所有源的域名规则集合�?  * **上下级智能合�?*：自动剔除已被父级域名覆盖的冗余子域名（例如存在 `openai.com` 时自动精简 `chat.openai.com` 等），大幅精简规则体积，保证极速匹配�?
+* **涵盖服务商**：
+* **Anthropic / Claude / Claude Code** (`claude.ai`, `anthropic.com`, `claude.com`, `claude.site` 等相关域名与子域)
+* **OpenAI** (ChatGPT、Sora、OpenAI API)
+* **Google Gemini / DeepMind** (Gemini、AI Studio、Bard、NotebookLM)
+* **Microsoft Copilot** (GitHub Copilot、Windows Copilot)
+* **xAI (Grok)** (`grok.com`, `x.ai`, `grokipedia.com`)
+* **Perplexity AI** (`perplexity.ai`, `pplx.ai`)
+* **Groq / Midjourney / Poe / Windsurf / Cursor / MiniMax** 等
+
+
+* **上游数据源**：
+1. [v2fly/domain-list-community](https://github.com/v2fly/domain-list-community)（提取 `category-ai-!cn`）
+2. [ACL4SSR](https://github.com/ACL4SSR/ACL4SSR) (`Clash/Ruleset/AI.list`)
+3. [VPSDance/ai-proxy-rules](https://github.com/VPSDance/ai-proxy-rules) (`rules/clash/global.yaml`)
+4. [blackmatrix7/ios_rule_script](https://github.com/blackmatrix7/ios_rule_script) (OpenAI / Claude / Anthropic / Gemini / Copilot)
+5. [MetaCubeX/meta-rules-dat](https://github.com/MetaCubeX/meta-rules-dat) (Perplexity / xAI / Groq / Anthropic)
+
+
+* **构建过滤原则**：
+* **去重合并**：对多源域名进行规范化与去重。
+* **避免过度泛化**：慎用过于宽泛的根域名或第三方 CDN 域名（除非明确仅用于相关服务），防止误伤其他正常流量。
+
+
+
 ---
 
-## 订阅配置示例
+## Mihomo 配置示例
 
-�?Mihomo (Clash.Meta) �?`config.yaml` 中配置：
+在 Mihomo (Clash.Meta) 的 `config.yaml` 中添加以下配置：
 
 ```yaml
 rule-providers:
@@ -55,7 +77,10 @@ rule-providers:
 
 rules:
   - RULE-SET,ads,REJECT
-  - RULE-SET,ai,AI 平台
+  - RULE-SET,ai,AI 专用
   # 其他分流规则...
-  - MATCH,漏网之鱼
+  - MATCH,最终出口
+
 ```
+
+> **提示**：如果你在本地用 `mihomo convert-ruleset domain text/yaml input.txt output.mrs` 生成 `.mrs` 文件，请确保源文件为纯 UTF-8 编码，且每条规则格式符合 `behavior: domain` 规范（如 `+.example.com` 或 `example.com`）。
